@@ -62,6 +62,29 @@ mod tests {
 
     #[cfg(feature = "std")]
     #[test]
+    fn eval_nd()
+    {
+        use array_trait::ArrayNdOps;
+
+        const A: [[u128; 3]; 3] = [
+            [0, 0, 0],
+            [0, 0, 0],
+            [0, 0, 1]
+        ];
+
+        const XY: [[[u128; 2]; 3]; 3] = ArrayNdOps::fill_nd(const |i| i.map2(const |i| i as u128));
+
+        assert_eq!(XY, [
+            [[0, 0], [0, 1], [0, 2]],
+            [[1, 0], [1, 1], [1, 2]],
+            [[2, 0], [2, 1], [2, 2]]
+        ]);
+
+        println!("{:?}", XY.map_nd(const |xy: [u128; 2]| A.evaluate_as_polynomial_nd(xy)))
+    }
+
+    #[cfg(feature = "std")]
+    #[test]
     fn it_works()
     {
         type T = i128;
