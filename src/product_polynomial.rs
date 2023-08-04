@@ -51,7 +51,7 @@ where
     {
         self.map2(const |p| p.resize(const |_| T::default()))
             .reduce(const |a, b| {
-                let mut y = [const {Default::default()}; (N*M + 1 - M)*M.min(1)];
+                let mut y = [Default::default(); (N*M + 1 - M)*M.min(1)];
                 let mut k = 0;
                 while k < (N*M + 1 - M)*M.min(1)
                 {

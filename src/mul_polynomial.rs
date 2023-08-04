@@ -34,14 +34,14 @@ impl<C1, C2, const N1: usize, const N2: usize> const MulPolynomial<[C2; N2]> for
 where
     C1: ~const Mul<C2> + Copy,
     C2: Copy,
-    <C1 as Mul<C2>>::Output: ~const AddAssign<<C1 as Mul<C2>>::Output> + ~const Default,
+    <C1 as Mul<C2>>::Output: ~const AddAssign<<C1 as Mul<C2>>::Output> + ~const Default + Copy,
     [(); N1 + N2 - 1]:
 {
     type Output = [<C1 as Mul<C2>>::Output; N1 + N2 - 1];
 
     fn mul_polynomial(self, rhs: [C2; N2]) -> Self::Output
     {
-        let mut y = [const {Default::default()}; N1 + N2 - 1];
+        let mut y = [Default::default(); N1 + N2 - 1];
         let mut k = 0;
         while k < N1 + N2 - 1
         {
