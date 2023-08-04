@@ -46,11 +46,13 @@ where
         let i0: [usize; N] = {
             let mut n_accum = 0;
             let mut dimensions_iter = A::DIMENSIONS.into_const_iter();
-            ArrayOps::fill(const |_| {
+            let i0 = ArrayOps::fill(const |_| {
                 let i0 = n_accum;
                 n_accum += dimensions_iter.next().unwrap();
                 i0
-            })
+            });
+            dimensions_iter.drop();
+            i0
         };
         let xn = {
             let mut xn = [None; A::DIMENSIONS.reduce(Add::add).unwrap_or_default()];

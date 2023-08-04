@@ -154,6 +154,7 @@ where
         let mut t_prev_iter = t_prev.into_const_iter();
         let mut t_iter = t.into_const_iter();
         let mut first = true;
+        
         let t_next = ArrayOps::fill(const |_| if first
             {
                 first = false;
@@ -164,6 +165,9 @@ where
                 two * t_iter.next().unwrap() - t_prev_iter.next().unwrap()
             }
         );
+        t_prev_iter.drop_copyable();
+        t_iter.drop_copyable();
+
         t_prev = t;
         t = t_next;
         k += 1;
