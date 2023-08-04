@@ -34,6 +34,7 @@ moddef::moddef!(
         polynomial_nd,
         chebyshev_polynomial,
         mul_polynomial,
+        product_polynomial,
         plot for cfg(test)
     }
 );
