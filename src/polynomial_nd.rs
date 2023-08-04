@@ -25,7 +25,7 @@ pub trait PolynomialNd<X, Y, const N: usize>: Sized
     ///     {
     ///         assert_eq!(
     ///             p.evaluate_as_polynomial_nd([x, y]),
-    ///             1 + x*2 + x*x*3 + y*(4 + x*5 + x*x*6) + y*y*(7 + x*8 + x*x*9)
+    ///             1 + y*2 + y*y*3 + x*(4 + y*5 + y*y*6) + x*x*(7 + y*8 + y*y*9)
     ///         );
     ///     }
     /// }
@@ -43,16 +43,13 @@ where
 {
     fn evaluate_as_polynomial_nd(self, x: [X; N]) -> <X as Mul<C>>::Output
     {
-        let i0: [usize; N] = {
+        let index_offset_in_xn: [usize; N] = {
             let mut n_accum = 0;
-            let mut dimensions_iter = A::DIMENSIONS.into_const_iter();
-            let i0 = ArrayOps::fill(const |_| {
+            A::DIMENSIONS.map2(const |d| {
                 let i0 = n_accum;
-                n_accum += dimensions_iter.next().unwrap();
+                n_accum += d;
                 i0
-            });
-            dimensions_iter.drop();
-            i0
+            })
         };
         let xn = {
             let mut xn = [None; A::DIMENSIONS.reduce(Add::add).unwrap_or_default()];
@@ -60,16 +57,12 @@ where
             let mut n = 0;
             while n < N
             {
-                if A::DIMENSIONS[n] < 2
-                {
-                    continue
-                }
                 let mut x_accum = x[n];
                 let mut i = 1;
 
                 while i < A::DIMENSIONS[n]
                 {
-                    xn[i0[n] + i] = Some(x_accum);
+                    xn[index_offset_in_xn[n] + i] = Some(x_accum);
                     x_accum *= x[n];
                     i += 1;
                 }
@@ -80,26 +73,46 @@ where
             xn
         };
 
+        /*unsafe {core::intrinsics::const_eval_select((A::DIMENSIONS,), do_nothing, print)};
+        unsafe {core::intrinsics::const_eval_select((A::DIMENSIONS.reduce(Add::add).unwrap_or_default(),), do_nothing, print)};
+        unsafe {core::intrinsics::const_eval_select((&xn,), do_nothing, print)};*/
+
         self.enumerate_nd()
-            .map_nd(const |(i, c)| if let Some(x) = i.zip2(i0)
-                .map2(const |(i, i0)| xn[i0 + i])
-                .reduce(const |a, b| match a
-                {
-                    Some(a) => match b
+            .map_nd(const |(indices, c)| {
+                if let Some(x) = indices.zip2(index_offset_in_xn)
+                    .map2(const |(i, i0)| xn[i0 + i])
+                    .reduce(const |a, b| match a
                     {
-                        Some(b) => Some(a*b),
-                        None => Some(a)
-                    },
-                    None => b
-                }).flatten()
-            {
-                x*c
-            }
-            else
-            {
-                c.into()
+                        Some(a) => match b
+                        {
+                            Some(b) => Some(a*b),
+                            None => Some(a)
+                        },
+                        None => b
+                    }).flatten()
+                {
+                    x*c
+                }
+                else
+                {
+                    c.into()
+                }
             }).flatten_nd_array()
             .reduce(Add::add)
             .unwrap_or_default()
     }
 }
+
+/*const fn do_nothing<T>(_xn: T)
+where
+    T: ~const Destruct
+{
+
+}
+
+fn print<T>(xn: T)
+where
+    T: Debug
+{
+    println!("{:?}", xn)
+}*/
