@@ -9,6 +9,34 @@ pub trait ProductPolynomial
 {
     type Output;
 
+    /// Multiplies all polynomials together
+    /// 
+    /// # Example
+    /// 
+    /// ```rust
+    /// #![feature(const_closures)]
+    /// #![feature(const_trait_impl)]
+    /// #![feature(const_mut_refs)]
+    /// #![feature(generic_const_exprs)]
+    /// 
+    /// use array_trait::ArrayOps;
+    /// use polynomial_ops::{Polynomial, ProductPolynomial};
+    /// 
+    /// // a = 1 + x
+    /// const A: [u8; 2] = [1, 1];
+    /// const X: [u8; 4] = [0, 1, 2, 3];
+    /// const AX: [u8; 4] = X.map2(const |x| A.evaluate_as_polynomial(x));
+    /// 
+    /// // aa = a*a = (1 + x)^2 = 1 + 2x + x^2
+    /// let aa = [A, A].product_polynomial();
+    /// assert_eq!(aa, [1, 2, 1]);
+    /// assert_eq!(X.map(|x| aa.evaluate_as_polynomial(x)), AX.map2(const |x| x*x));
+    /// 
+    /// // aaa = a*a*a = (1 + x)^3 = 1 + 3x + 3x^2 + x^3
+    /// let aaa = [A, A, A].product_polynomial();
+    /// assert_eq!(aaa, [1, 3, 3, 1]);
+    /// assert_eq!(X.map(|x| aaa.evaluate_as_polynomial(x)), AX.map2(const |x| x*x*x));
+    /// ```
     fn product_polynomial(self) -> Self::Output;
 }
 
