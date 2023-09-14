@@ -1,6 +1,6 @@
 use core::{ops::{Add, Mul, Sub, Neg, AddAssign}, alloc::Allocator, iter::Sum};
 
-use num::{Zero, One};
+use num_traits::{Zero, One};
 use num_identities_const::{OneConst, ZeroConst};
 use array_trait::ArrayOps;
 
