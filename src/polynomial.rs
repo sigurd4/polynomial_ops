@@ -169,7 +169,7 @@ mod array_polynomial
         let mut one = true;
         let mut xn = x;
         polynomial
-            .map2(const |c| if one {
+            .map2(const |c: C| if one {
                 one = false;
                 c.into()
             }
