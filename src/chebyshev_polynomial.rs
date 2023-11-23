@@ -94,8 +94,8 @@ impl<C, const N: usize> const Into<Option<[C; N]>> for ChebyshevPolynomial
 where
     [C; N]: Polynomial<<[C; N] as IntoIterator>::Item> + ArrayOps<C, N>,
     C: OneConst + ZeroConst + Copy
-        + ~const Add<Output = C> + ~const Sub<Output = C> + ~const Neg<Output = C> + ~const AddAssign
-        + ~const Mul<Output = C>
+        + /*~const*/ Add<Output = C> + /*~const*/ Sub<Output = C> + /*~const*/ Neg<Output = C> + /*~const*/ AddAssign
+        + /*~const*/ Mul<Output = C>
 {
     fn into(self) -> Option<[C; N]>
     {
@@ -109,8 +109,8 @@ impl<C, const N: usize> const TryInto<[C; N]> for ChebyshevPolynomial
 where
     [C; N]: Polynomial<<[C; N] as IntoIterator>::Item> + ArrayOps<C, N>,
     C: OneConst + ZeroConst + Copy
-        + ~const Add<Output = C> + ~const Sub<Output = C> + ~const Neg<Output = C> + ~const AddAssign
-        + ~const Mul<Output = C>
+        + /*~const*/ Add<Output = C> + /*~const*/ Sub<Output = C> + /*~const*/ Neg<Output = C> + /*~const*/ AddAssign
+        + /*~const*/ Mul<Output = C>
 {
     type Error = Self;
 
@@ -120,12 +120,12 @@ where
     }
 }
 
-const unsafe fn chebyshev_array_with_one_and_zero_given_as<A, C, const N: usize>(kind: usize, order: usize, zero: C, one: C, two: C) -> Option<A>
+/*const*/ unsafe fn chebyshev_array_with_one_and_zero_given_as<A, C, const N: usize>(kind: usize, order: usize, zero: C, one: C, two: C) -> Option<A>
 where
-    A: ~const ArrayOps<C, N> + Copy,
+    A: /*~const*/ ArrayOps<C, N> + Copy,
     C: Copy
-        + ~const Add<Output = C> + ~const Sub<Output = C> + ~const Neg<Output = C> + ~const AddAssign
-        + ~const Mul<Output = C>
+        + /*~const*/ Add<Output = C> + /*~const*/ Sub<Output = C> + /*~const*/ Neg<Output = C> + /*~const*/ AddAssign
+        + /*~const*/ Mul<Output = C>
 {
     if order > N
     {
@@ -155,7 +155,7 @@ where
         let mut t_iter = t.into_const_iter();
         let mut first = true;
         
-        let t_next = ArrayOps::fill(const |_| if first
+        let t_next = ArrayOps::fill(/*const*/ |_| if first
             {
                 first = false;
                 -t_prev_iter.next().unwrap()
@@ -179,9 +179,9 @@ where
 impl<T> const Polynomial<T> for ChebyshevPolynomial
 where
     T: OneConst + ZeroConst + Copy
-        + ~const Add<T, Output = T> + ~const AddAssign
-        + ~const Sub<T, Output = T>
-        + ~const Mul<T, Output = T>
+        + /*~const*/ Add<T, Output = T> + /*~const*/ AddAssign
+        + /*~const*/ Sub<T, Output = T>
+        + /*~const*/ Mul<T, Output = T>
 {
     type Y = T;
 
@@ -193,12 +193,12 @@ where
     }
 }
 
-const unsafe fn evaluate_chebyshev_given_one_and_zero<T>(p: ChebyshevPolynomial, x: T, zero: T, one: T, two: T) -> T
+/*const*/ unsafe fn evaluate_chebyshev_given_one_and_zero<T>(p: ChebyshevPolynomial, x: T, zero: T, one: T, two: T) -> T
 where
     T: Copy
-        + ~const AddAssign
-        + ~const Sub<T, Output = T>
-        + ~const Mul<T, Output = T>
+        + /*~const*/ AddAssign
+        + /*~const*/ Sub<T, Output = T>
+        + /*~const*/ Mul<T, Output = T>
 {
     let mut t_prev = one;
     if p.order == 0

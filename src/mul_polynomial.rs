@@ -32,9 +32,9 @@ pub trait MulPolynomial<Rhs>
 
 impl<C1, C2, const N1: usize, const N2: usize> const MulPolynomial<[C2; N2]> for [C1; N1]
 where
-    C1: ~const Mul<C2> + Copy,
+    C1: /*~const*/ Mul<C2> + Copy,
     C2: Copy,
-    <C1 as Mul<C2>>::Output: ~const AddAssign<<C1 as Mul<C2>>::Output> + ~const Default + Copy,
+    <C1 as Mul<C2>>::Output: /*~const*/ AddAssign<<C1 as Mul<C2>>::Output> + /*~const*/ Default + Copy,
     [(); N1 + N2 - 1]:
 {
     type Output = [<C1 as Mul<C2>>::Output; N1 + N2 - 1];

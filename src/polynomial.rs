@@ -24,19 +24,20 @@ pub trait Polynomial<X>: Sized
     fn evaluate_as_polynomial(self, x: X) -> Self::Y;
 }
 
-impl<C, X> const Polynomial<X> for &[C]
+impl<C, X> /*const*/ Polynomial<X> for &[C]
 where
-    C: ~const Into<<X as Mul<C>>::Output> + Copy,
-    X: ~const Mul<C> + ~const MulAssign + Copy,
-    <X as Mul<C>>::Output: ~const Default + ~const Add<Output = <X as Mul<C>>::Output> + ~const AddAssign + Default
+    C: /*~const*/ Into<<X as Mul<C>>::Output> + Copy,
+    X: /*~const*/ Mul<C> + /*~const*/ MulAssign + Copy,
+    <X as Mul<C>>::Output: /*~const*/ Default + /*~const*/ Add<Output = <X as Mul<C>>::Output> + /*~const*/ AddAssign + Default
 {
     type Y = <X as Mul<C>>::Output;
 
     fn evaluate_as_polynomial(self, x: X) -> Self::Y
     {
-        unsafe {
+        slice_polynomial::evaluate_at_rt(self, x)
+        /*unsafe {
             core::intrinsics::const_eval_select((self, x,), slice_polynomial::evaluate_const, slice_polynomial::evaluate_at_rt)
-        }
+        }*/
     }
 }
 
@@ -58,17 +59,18 @@ where
 
 impl<C, X, const N: usize> const Polynomial<X> for [C; N]
 where
-    C: ~const Destruct + ~const Into<<X as Mul<C>>::Output>,
-    X: ~const Mul<C> + ~const MulAssign + Copy,
-    <X as Mul<C>>::Output: ~const Default + ~const Add<Output = <X as Mul<C>>::Output> + ~const Destruct
+    C: /*~const*/ Destruct + /*~const*/ Into<<X as Mul<C>>::Output>,
+    X: /*~const*/ Mul<C> + /*~const*/ MulAssign + Copy,
+    <X as Mul<C>>::Output: /*~const*/ Default + /*~const*/ Add<Output = <X as Mul<C>>::Output> + /*~const*/ Destruct
 {
     type Y = <X as Mul<C>>::Output;
 
     fn evaluate_as_polynomial(self, x: X) -> Self::Y
     {
-        unsafe {
+        array_polynomial::evaluate_at_rt(self, x)
+        /*unsafe {
             core::intrinsics::const_eval_select((self, x,), array_polynomial::evaluate_const, array_polynomial::evaluate_at_rt)
-        }
+        }*/
     }
 }
 
@@ -78,7 +80,7 @@ mod slice_polynomial
 
     use super::array_polynomial;
 
-    #[cfg(test)]
+    /*#[cfg(test)]
     #[test]
     fn test_evaluation_equality()
     {
@@ -97,9 +99,9 @@ mod slice_polynomial
                 evaluate_const(&CHEB.unwrap(), x)
             );
         }
-    }
+    }*/
 
-    pub const fn evaluate_const<C, X>(polynomial: &[C], x: X) -> <X as Mul<C>>::Output
+    /*pub const fn evaluate_const<C, X>(polynomial: &[C], x: X) -> <X as Mul<C>>::Output
     where
         C: ~const Into<<X as Mul<C>>::Output> + Copy,
         X: ~const Mul<C> + ~const MulAssign + Copy,
@@ -120,7 +122,7 @@ mod slice_polynomial
             ptr = unsafe {ptr.add(1)};
         }
         y
-    }
+    }*/
 
     pub fn evaluate_at_rt<C, X>(polynomial: &[C], x: X) -> <X as Mul<C>>::Output
     where
@@ -138,7 +140,7 @@ mod array_polynomial
 
     use array_trait::ArrayOps;
 
-    #[cfg(test)]
+    /*#[cfg(test)]
     #[test]
     fn test_evaluation_equality()
     {
@@ -157,9 +159,9 @@ mod array_polynomial
                 evaluate_const(CHEB.unwrap(), x)
             );
         }
-    }
+    }*/
 
-    pub const fn evaluate_const<C, A, X, const N: usize>(polynomial: A, x: X) -> <X as Mul<C>>::Output
+    /*pub const fn evaluate_const<C, A, X, const N: usize>(polynomial: A, x: X) -> <X as Mul<C>>::Output
     where
         A: ~const ArrayOps<C, N>,
         C: ~const Destruct + ~const Into<<X as Mul<C>>::Output>,
@@ -181,7 +183,7 @@ mod array_polynomial
             })
             .reduce(Add::add)
             .unwrap_or(Default::default())
-    }
+    }*/
     
     pub fn evaluate_at_rt<C, A, X>(polynomial: A, x: X) -> <X as Mul<C>>::Output
     where

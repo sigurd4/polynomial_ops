@@ -40,24 +40,38 @@ pub trait ProductPolynomial
     fn product_polynomial(self) -> Self::Output;
 }
 
-impl<T, const N: usize, const M: usize> const ProductPolynomial for [[T; N]; M]
-where
-    T: ~const Default + ~const Mul<T, Output = T> + ~const AddAssign<T> + Copy,
-    [(); (N*M + 1 - M)*M.min(1)]:
+pub const fn polynomial_product_length(n: usize, m: usize) -> usize
 {
-    type Output = [T; (N*M + 1 - M)*M.min(1)];
+    let k = n*m + 1 - m;
+    if m > 1
+    {
+        k*m
+    }
+    else
+    {
+        k
+    }
+}
+
+impl<T, const N: usize, const M: usize> /*const*/ ProductPolynomial for [[T; N]; M]
+where
+    T: /*~const*/ Default + /*~const*/ Mul<T, Output = T> + /*~const*/ AddAssign<T> + Copy,
+    [(); polynomial_product_length(N, M)]:
+{
+    type Output = [T; polynomial_product_length(N, M)];
 
     fn product_polynomial(self) -> Self::Output
     {
-        self.map2(const |p| p.resize(const |_| T::default()))
-            .reduce(const |a, b| {
-                let mut y = [Default::default(); (N*M + 1 - M)*M.min(1)];
+        self.map2(/*const*/ |p| p.resize(/*const*/ |_| T::default()))
+            .reduce(/*const*/ |a, b| {
+                let len = polynomial_product_length(N, M);
+                let mut y = [Default::default(); polynomial_product_length(N, M)];
                 let mut k = 0;
-                while k < (N*M + 1 - M)*M.min(1)
+                while k < len
                 {
                     let k_next = k + 1;
         
-                    let (mut i, mut j) = (k_next.saturating_sub((N*M + 1 - M)*M.min(1)), k_next.min((N*M + 1 - M)*M.min(1)));
+                    let (mut i, mut j) = (k_next.saturating_sub(len), k_next.min(len));
                     let n = k_next.min(N);
         
                     while i < n

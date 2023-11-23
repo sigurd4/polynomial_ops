@@ -1,39 +1,18 @@
 #![cfg_attr(not(any(test, feature = "std")), no_std)]
 
-#![feature(associated_type_bounds)]
-#![feature(associated_const_equality)]
 #![feature(const_trait_impl)]
+#![feature(const_mut_refs)]
+#![feature(allocator_api)]
+
 #![feature(generic_const_exprs)]
 #![feature(const_closures)]
-#![feature(const_mut_refs)]
-#![feature(inline_const)]
-#![feature(generic_arg_infer)]
-#![feature(const_swap)]
-#![feature(const_maybe_uninit_assume_init)]
-#![feature(const_option)]
-#![feature(const_refs_to_cell)]
-#![feature(const_option_ext)]
-#![feature(core_intrinsics)]
-#![feature(const_eval_select)]
-#![feature(array_zip)]
-#![feature(const_fn_floating_point_arithmetic)]
-#![feature(const_convert)]
-#![feature(unboxed_closures)]
-#![feature(fn_traits)]
-#![feature(min_specialization)]
-#![feature(allocator_api)]
-#![feature(const_for)]
-#![feature(const_slice_index)]
-#![feature(const_fmt_arguments_new)]
-#![feature(array_chunks)]
-#![feature(const_result_drop)]
 
 moddef::moddef!(
     flat(pub) mod {
         chebyshev_polynomial,
         mul_polynomial,
         plot for cfg(test),
-        polynomial_nd,
+        /*polynomial_nd,*/
         polynomial,
         product_polynomial
     }
