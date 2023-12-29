@@ -121,8 +121,3 @@ impl_product_polynomial_vec!(<{const N: usize, A}> for Vec<[T; N], A> where A: A
 impl_product_polynomial_vec!(<{const N: usize, A}> for Vec<&[T; N], A> where A: Allocator);
 impl_product_polynomial_vec!(<{A}> for Vec<&[T], A> where A: Allocator);
 impl_product_polynomial_vec!(<{A1, A2}> for Vec<Vec<T, A2>, A1> where A1: Allocator, A2: Allocator);
-
-// M = 0 : 0
-// M = 1 : N
-// M = 2 : N + N - 1
-// M = 3 : N + N - 1 + N - 1
