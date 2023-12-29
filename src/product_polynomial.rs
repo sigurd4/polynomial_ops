@@ -1,6 +1,6 @@
 use core::{mem::MaybeUninit, ops::{Mul, AddAssign}, alloc::Allocator};
 
-use array_trait::ArrayOps;
+use array__ops::ArrayOps;
 
 use super::*;
 
@@ -19,38 +19,34 @@ pub trait ProductPolynomial
     /// #![feature(const_mut_refs)]
     /// #![feature(generic_const_exprs)]
     /// 
-    /// use array_trait::ArrayOps;
+    /// use array__ops::ArrayOps;
     /// use polynomial_ops::{Polynomial, ProductPolynomial};
     /// 
     /// // a = 1 + x
     /// const A: [u8; 2] = [1, 1];
     /// const X: [u8; 4] = [0, 1, 2, 3];
-    /// const AX: [u8; 4] = X.map2(const |x| A.evaluate_as_polynomial(x));
+    /// let ax: [u8; 4] = X.map(|x| A.evaluate_as_polynomial(x));
     /// 
     /// // aa = a*a = (1 + x)^2 = 1 + 2x + x^2
     /// let aa = [A, A].product_polynomial();
     /// assert_eq!(aa, [1, 2, 1]);
-    /// assert_eq!(X.map(|x| aa.evaluate_as_polynomial(x)), AX.map2(const |x| x*x));
+    /// assert_eq!(X.map(|x| aa.evaluate_as_polynomial(x)), ax.map2(|x| x*x));
     /// 
     /// // aaa = a*a*a = (1 + x)^3 = 1 + 3x + 3x^2 + x^3
     /// let aaa = [A, A, A].product_polynomial();
     /// assert_eq!(aaa, [1, 3, 3, 1]);
-    /// assert_eq!(X.map(|x| aaa.evaluate_as_polynomial(x)), AX.map2(const |x| x*x*x));
+    /// assert_eq!(X.map(|x| aaa.evaluate_as_polynomial(x)), ax.map2(|x| x*x*x));
     /// ```
     fn product_polynomial(self) -> Self::Output;
 }
 
 pub const fn polynomial_product_length(n: usize, m: usize) -> usize
 {
-    let k = n*m + 1 - m;
-    if m > 1
+    if n == 0 || m == 0
     {
-        k*m
+        return 0;
     }
-    else
-    {
-        k
-    }
+    n + m - 1
 }
 
 impl<T, const N: usize, const M: usize> /*const*/ ProductPolynomial for [[T; N]; M]

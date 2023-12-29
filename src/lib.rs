@@ -12,7 +12,7 @@ moddef::moddef!(
         chebyshev_polynomial,
         mul_polynomial,
         plot for cfg(test),
-        /*polynomial_nd,*/
+        polynomial_nd,
         polynomial,
         product_polynomial
     }
@@ -20,7 +20,7 @@ moddef::moddef!(
 
 #[cfg(test)]
 mod tests {
-    use array_trait::ArrayOps;
+    use array__ops::ArrayOps;
 
     use super::*;
 
@@ -32,8 +32,8 @@ mod tests {
         //println!("{:?}", p.clone().mul_polynomial(p.clone()));
 
         const P: [f32; 2] = [1.0, 1.0];
-        const Q: [f32; 3] = P.mul_polynomial(P);
-        println!("{:?}", Q);
+        let q: [f32; 3] = P.mul_polynomial(P);
+        println!("{:?}", q);
 
         let q = p.as_slice().mul_polynomial(P);
         println!("{:?}", q);
@@ -43,7 +43,7 @@ mod tests {
     #[test]
     fn eval_nd()
     {
-        use array_trait::ArrayNdOps;
+        use array__ops::ArrayNdOps;
 
         const A: [[u128; 3]; 3] = [
             [0, 0, 0],
@@ -51,15 +51,15 @@ mod tests {
             [0, 0, 1]
         ];
 
-        const XY: [[[u128; 2]; 3]; 3] = ArrayNdOps::fill_nd(const |i| i.map2(const |i| i as u128));
+        let xy: [[[u128; 2]; 3]; 3] = ArrayNdOps::fill_nd(|i| i.map2(const |i| i as u128));
 
-        assert_eq!(XY, [
+        assert_eq!(xy, [
             [[0, 0], [0, 1], [0, 2]],
             [[1, 0], [1, 1], [1, 2]],
             [[2, 0], [2, 1], [2, 2]]
         ]);
 
-        println!("{:?}", XY.map_nd(const |xy: [u128; 2]| A.evaluate_as_polynomial_nd(xy)))
+        println!("{:?}", xy.map_nd(|xy: [u128; 2]| A.evaluate_as_polynomial_nd(xy)))
     }
 
     #[cfg(feature = "std")]
@@ -73,36 +73,36 @@ mod tests {
 
         println!("KIND = {}\nORDER = {}", KIND, ORDER);
 
-        const CHEB: [T; N] = ChebyshevPolynomial::new(KIND, ORDER).try_into().ok().unwrap();
-        println!("CHEB = {:?}", CHEB);
-        let cheb: Vec<T> = ChebyshevPolynomial::new(KIND, ORDER).into();
-        println!("cheb = {:?}", cheb);
+        let cheb_vec: Vec<T> = ChebyshevPolynomial::new(KIND, ORDER).into();
+        println!("cheb = {:?}", cheb_vec);
+        let cheb: [T; N] = ChebyshevPolynomial::new(KIND, ORDER).try_into().ok().unwrap();
+        println!("CHEB = {:?}", cheb);
 
-        const MAX: T = CHEB.reduce(Ord::max).unwrap();
-        const MIN: T = CHEB.reduce(Ord::min).unwrap();
+        let max: T = cheb.reduce(Ord::max).unwrap();
+        let min: T = cheb.reduce(Ord::min).unwrap();
 
-        print!("max = {}", MAX);
-        if MAX > i64::MAX as i128 {print!(" > i64")} // N < 54
-        if MAX > i32::MAX as i128 {print!(" > i32")} // N < 28
-        if MAX > i16::MAX as i128 {print!(" > i16")} // N < 14
-        if MAX > i8::MAX as i128 {print!(" > i8")} // N < 9
+        print!("max = {}", max);
+        if max > i64::MAX as i128 {print!(" > i64")} // N < 54
+        if max > i32::MAX as i128 {print!(" > i32")} // N < 28
+        if max > i16::MAX as i128 {print!(" > i16")} // N < 14
+        if max > i8::MAX as i128 {print!(" > i8")} // N < 9
         println!("");
-        print!("min = {}", MIN);
-        if MIN < i64::MIN as i128 {print!(" < i64")}
-        if MIN < i32::MIN as i128 {print!(" < i32")}
-        if MIN < i16::MIN as i128 {print!(" < i16")}
-        if MIN < i8::MIN as i128 {print!(" < i8")}
+        print!("min = {}", min);
+        if min < i64::MIN as i128 {print!(" < i64")}
+        if min < i32::MIN as i128 {print!(" < i32")}
+        if min < i16::MIN as i128 {print!(" < i16")}
+        if min < i8::MIN as i128 {print!(" < i8")}
         println!("");
         
-        assert_eq!(CHEB.to_vec(), cheb);
+        assert_eq!(cheb.to_vec(), cheb_vec);
 
         const TEST_COUNT: usize = (i8::MAX as i64 - i8::MIN as i64 + 1) as usize;
-        const X: [T; TEST_COUNT] = ArrayOps::fill(const |i| i as T + i8::MIN as T);
+        let x: [T; TEST_COUNT] = ArrayOps::fill(const |i| i as T + i8::MIN as T);
 
-        const Y: [T; TEST_COUNT] = X.map2(const |x| CHEB.evaluate_as_polynomial(x));
-        let y = X.map(|x| cheb.clone().evaluate_as_polynomial(x));
+        let y: [T; TEST_COUNT] = x.map(|x| cheb.evaluate_as_polynomial(x));
+        let y_vec = x.map(|x| cheb_vec.clone().evaluate_as_polynomial(x));
 
-        assert_eq!(Y, y);
+        assert_eq!(y, y_vec);
     }
 
     mod plot
@@ -114,7 +114,7 @@ mod tests {
         const PLOT_TARGET: &str = "plots";
 
         use crate::{ChebyshevPolynomial, Polynomial, PolynomialNd};
-        use array_trait::ArrayOps;
+        use array__ops::ArrayOps;
         use currying::Curry;
         use linspace::LinspaceArray;
 
@@ -125,20 +125,20 @@ mod tests {
             const ORDER: usize = 2;
             const N: usize = ORDER + 1;
             
-            const CHEB: [T; N] = ChebyshevPolynomial::new(KIND, ORDER).try_into().ok().unwrap();
+            let cheb: [T; N] = ChebyshevPolynomial::new(KIND, ORDER).try_into().ok().unwrap();
             
             const X0: T = 0.0;
             const X1: T = 4.0;
 
             const RESOLUTION: usize = 1024;
-            const X: [T; RESOLUTION] = (X0..X1).linspace_array();
+            let x: [T; RESOLUTION] = (X0..X1).linspace_array();
 
-            const Y: [T; RESOLUTION] = X.map2(Polynomial::evaluate_as_polynomial.curry(CHEB));
+            let y: [T; RESOLUTION] = x.map2(Polynomial::evaluate_as_polynomial.curry(cheb));
             
             let plot_title: &str = &format!("{ORDER}. order Chebyshev of the {KIND}. kind, x = {X0}..{X1}:");
             let plot_path: &str = &format!("{PLOT_TARGET}/chebyshev.png"); //&format!("{PLOT_TARGET}/chebyshev_k{KIND}_o{ORDER}_x{X0}_{X1}.png");
 
-            plot_curve(plot_title, plot_path, X, Y).unwrap()
+            plot_curve(plot_title, plot_path, x, y).unwrap()
         }
         
         #[test]
@@ -154,14 +154,14 @@ mod tests {
             const X1: T = 5 as T;
 
             const RESOLUTION: usize = 1024;
-            const X: [T; RESOLUTION] = (X0..X1).linspace_array();
+            let x: [T; RESOLUTION] = (X0..X1).linspace_array();
 
-            const Y: [T; RESOLUTION] = X.map2(Polynomial::evaluate_as_polynomial.curry(POLYNOMIAL));
+            let y: [T; RESOLUTION] = x.map(Polynomial::evaluate_as_polynomial.curry(POLYNOMIAL));
             
             let plot_title: &str = &format!("{ORDER}. order polynomial, x = {X0}..{X1}:");
             let plot_path: &str = &format!("{PLOT_TARGET}/polynomial.png"); //&format!("{PLOT_TARGET}/polynomial_{:?}_x{X0}_{X1}.png", POLYNOMIAL);
 
-            plot_curve(plot_title, plot_path, X, Y).unwrap()
+            plot_curve(plot_title, plot_path, x, y).unwrap()
         }
         #[test]
         fn plot_polynomial_2d_parametric()
@@ -188,14 +188,14 @@ mod tests {
             const Y1: T = 10 as T;
 
             const RESOLUTION: [usize; 2] = [32, 32];
-            const X: [T; RESOLUTION[0]] = (X0..X1).linspace_array();
-            const Y: [T; RESOLUTION[1]] = (Y0..Y1).linspace_array();
+            let x: [T; RESOLUTION[0]] = (X0..X1).linspace_array();
+            let y: [T; RESOLUTION[1]] = (Y0..Y1).linspace_array();
             
             let plot_title: &str = &format!("2D polynomial, (x, y) = ({X0}..{X1}, {Y0}..{Y1}):");
             let plot_path: &str = &format!("{PLOT_TARGET}/polynomial_2d_parametric.svg");
 
             plot_parametric_curve_2d(
-                plot_title, plot_path, X, Y,
+                plot_title, plot_path, x, y,
                 |x, y| POLYNOMIAL.map2(|p| p.evaluate_as_polynomial_nd([x, y]))
             ).unwrap()
         }
@@ -216,14 +216,14 @@ mod tests {
             const Y1: T = 10 as T;
 
             const RESOLUTION: [usize; 2] = [32, 32];
-            const X: [T; RESOLUTION[0]] = (X0..X1).linspace_array();
-            const Y: [T; RESOLUTION[1]] = (Y0..Y1).linspace_array();
+            let x: [T; RESOLUTION[0]] = (X0..X1).linspace_array();
+            let y: [T; RESOLUTION[1]] = (Y0..Y1).linspace_array();
             
             let plot_title: &str = &format!("2D polynomial, (x, y) = ({X0}..{X1}, {Y0}..{Y1}):");
             let plot_path: &str = &format!("{PLOT_TARGET}/polynomial_2d.svg"); //&format!("{PLOT_TARGET}/polynomial_{:?}_x{X0}_{X1}.png", POLYNOMIAL);
 
             plot_curve_2d(
-                plot_title, plot_path, X, Y,
+                plot_title, plot_path, x, y,
                 |x, y| POLYNOMIAL.evaluate_as_polynomial_nd([x, y])
             ).unwrap()
         }
@@ -244,13 +244,13 @@ mod tests {
             const THETA1: T = core::f32::consts::TAU*4.0;
 
             const RESOLUTION: [usize; 2] = [16, 128];
-            const R: [T; RESOLUTION[0]] = (R0..R1).linspace_array();
-            const THETA: [T; RESOLUTION[1]] = (THETA0..THETA1).linspace_array();
+            let r: [T; RESOLUTION[0]] = (R0..R1).linspace_array();
+            let theta: [T; RESOLUTION[1]] = (THETA0..THETA1).linspace_array();
             
             let plot_title: &str = &format!("2D radial polynomial, (r, theta) = ({R0}..{R1}, {THETA0}..{THETA1}):");
             let plot_path: &str = &format!("{PLOT_TARGET}/polynomial_2d_rad.svg");
 
-            plot_curve_2d_rad(plot_title, plot_path, R, THETA, |r, theta| POLYNOMIAL.evaluate_as_polynomial_nd([r, theta])).unwrap()
+            plot_curve_2d_rad(plot_title, plot_path, r, theta, |r, theta| POLYNOMIAL.evaluate_as_polynomial_nd([r, theta])).unwrap()
         }
     
         #[test]
@@ -278,14 +278,14 @@ mod tests {
             const THETA1: T = core::f32::consts::TAU;
     
             const RESOLUTION: [usize; 2] = [16, 128];
-            const R: [T; RESOLUTION[0]] = (R0..R1).linspace_array();
-            const THETA: [T; RESOLUTION[1]] = (THETA0..THETA1).linspace_array();
+            let r: [T; RESOLUTION[0]] = (R0..R1).linspace_array();
+            let theta: [T; RESOLUTION[1]] = (THETA0..THETA1).linspace_array();
             
             let plot_title: &str = &format!("2D radial polynomial, (r, theta) = ({R0}..{R1}, {THETA0}..{THETA1}):");
             let plot_path: &str = &format!("{PLOT_TARGET}/polynomial_2d_parametric_rad.svg");
     
             plot_parametric_curve_2d_rad(
-                plot_title, plot_path, R, THETA,
+                plot_title, plot_path, r, theta,
                 |r, theta| POLYNOMIAL.map2(|p| p.evaluate_as_polynomial_nd([r, theta]))
             ).unwrap()
         }

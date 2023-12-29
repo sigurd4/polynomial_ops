@@ -138,7 +138,7 @@ mod array_polynomial
 {
     use core::{ops::{Mul, MulAssign, Add}, marker::Destruct};
 
-    use array_trait::ArrayOps;
+    use array__ops::ArrayOps;
 
     /*#[cfg(test)]
     #[test]

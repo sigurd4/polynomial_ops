@@ -1,4 +1,4 @@
-use array_trait::ArrayOps;
+use array__ops::ArrayOps;
 use plotters::{prelude::*, element::PointCollection, coord::ranged3d::{ProjectionMatrixBuilder, ProjectionMatrix}};
 
 type T = f32;
@@ -45,7 +45,7 @@ pub fn plot_curve<const N: usize>(
         .draw()?;
     
     chart.draw_series(LineSeries::new(
-            x.zip2(y),
+            x.zip(y),
             &BLUE
         ))?;
         

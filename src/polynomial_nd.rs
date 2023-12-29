@@ -1,6 +1,6 @@
 use core::{ops::{Mul, MulAssign, Add}, marker::Destruct};
 
-use array_trait::{ArrayOps, ArrayNdOps, ArrayNd};
+use array__ops::{ArrayOps, ArrayNdOps, ArrayNd};
 
 #[const_trait]
 pub trait PolynomialNd<X, Y, const N: usize>: Sized
@@ -33,13 +33,25 @@ pub trait PolynomialNd<X, Y, const N: usize>: Sized
     fn evaluate_as_polynomial_nd(self, x: [X; N]) -> Y;
 }
 
-impl<C, X, A, const N: usize> const PolynomialNd<X, <X as Mul<C>>::Output, N> for A
+pub const fn sum_dims<const D: usize>(dims: [usize; D]) -> usize
+{
+    let mut s = 0;
+    let mut d = 0;
+    while d < D
+    {
+        s += dims[d];
+        d += 1;
+    }
+    s
+}
+
+impl<C, X, A, const N: usize> /*const*/ PolynomialNd<X, <X as Mul<C>>::Output, N> for A
 where
-    A: ArrayNd<N, ItemNd = C> + ~const ArrayNdOps<N, C, {A::FLAT_LENGTH}>,
-    C: ~const Destruct + ~const Into<<X as Mul<C>>::Output>,
-    X: ~const Mul<C> + ~const MulAssign + ~const Mul<Output = X> + Copy,
-    <X as Mul<C>>::Output: ~const Default + ~const Add<Output = <X as Mul<C>>::Output> + ~const Destruct,
-    [(); A::DIMENSIONS.reduce(Add::add).unwrap_or_default()]:
+    A: ArrayNd<N, ItemNd = C> + /*~const*/ ArrayNdOps<N, C, {A::FLAT_LENGTH}>,
+    C: /*~const*/ Destruct + /*~const*/ Into<<X as Mul<C>>::Output>,
+    X: /*~const*/ Mul<C> + /*~const*/ MulAssign + /*~const*/ Mul<Output = X> + Copy,
+    <X as Mul<C>>::Output: /*~const*/ Default + /*~const*/ Add<Output = <X as Mul<C>>::Output> + /*~const*/ Destruct,
+    [(); sum_dims(A::DIMENSIONS)]:
 {
     fn evaluate_as_polynomial_nd(self, x: [X; N]) -> <X as Mul<C>>::Output
     {
@@ -52,7 +64,7 @@ where
             })
         };
         let xn = {
-            let mut xn = [None; A::DIMENSIONS.reduce(Add::add).unwrap_or_default()];
+            let mut xn = [None; sum_dims(A::DIMENSIONS)];
 
             let mut n = 0;
             while n < N
@@ -78,10 +90,10 @@ where
         unsafe {core::intrinsics::const_eval_select((&xn,), do_nothing, print)};*/
 
         self.enumerate_nd()
-            .map_nd(const |(indices, c)| {
-                if let Some(x) = indices.zip2(index_offset_in_xn)
-                    .map2(const |(i, i0)| xn[i0 + i])
-                    .reduce(const |a, b| match a
+            .map_nd(|(indices, c)| {
+                if let Some(x) = indices.zip(index_offset_in_xn)
+                    .map2(|(i, i0)| xn[i0 + i])
+                    .reduce(|a, b| match a
                     {
                         Some(a) => match b
                         {

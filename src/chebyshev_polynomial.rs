@@ -2,7 +2,7 @@ use core::{ops::{Add, Mul, Sub, Neg, AddAssign}, alloc::Allocator, iter::Sum};
 
 use num_traits::{Zero, One};
 use num_identities_const::{OneConst, ZeroConst};
-use array_trait::ArrayOps;
+use array__ops::ArrayOps;
 
 use super::*;
 
@@ -151,8 +151,8 @@ where
     let mut k = 1;
     while k < order
     {
-        let mut t_prev_iter = t_prev.into_const_iter();
-        let mut t_iter = t.into_const_iter();
+        let mut t_prev_iter = t_prev.into_iter();
+        let mut t_iter = t.into_iter();
         let mut first = true;
         
         let t_next = ArrayOps::fill(/*const*/ |_| if first
@@ -165,8 +165,6 @@ where
                 two * t_iter.next().unwrap() - t_prev_iter.next().unwrap()
             }
         );
-        t_prev_iter.drop_copyable();
-        t_iter.drop_copyable();
 
         t_prev = t;
         t = t_next;
