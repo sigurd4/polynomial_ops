@@ -16,7 +16,7 @@ num_identities_const = "0.1.0"
 
 currying = "0.2.2"
 
-array__ops = "0.1.1"
+array__ops = "0.1.2"
 
 [dev-dependencies]
 plotters = "0.3.5"
